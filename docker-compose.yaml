@@ -1,35 +1,35 @@
-version: "3.8"
+version: "3.8" # указание версии схемы версия "3.8" для файла compose
 
 services:
-  database:
-    container_name: database
-    image: postgres:13.3
-    environment:
-      POSTGRES_DB: "shmogwarts"
-      POSTGRES_USER: "user"
-      POSTGRES_PASSWORD: "1234"
-    volumes:
-      - .:/docker-entrypoint-initdb.d
+  database: # название сервиса "database"
+    container_name: database # задание имени контейнера "database"
+    image: postgres:13.3 # выбор образа контейнера для сервиса "database"
+    environment: # раздел с переменными среды сервиса "database"
+      POSTGRES_DB: "shmogwarts" # переменная среды для указания названия базы данных
+      POSTGRES_USER: "user" # переменная среды для указания имени пользователя PostgreSQL
+      POSTGRES_PASSWORD: "1234" # переменная среды для указания пароля PostgreSQL
+    volumes: # раздел для примонтированных томов
+      - .:/.docker-entrypoint-initdb.d # примонтированный каталог для файла инициализации базы данных в контейнере "database"
+    ports: # раздел для указания открытых портов на хосте и в контейнере
+      - "15432:5432" # открытие порта 15432 на хосте, который будет перенаправлен на порт 5432 в контейнере
+  php: # название сервиса "php"
+    container_name: php # задание имени контейнера "php"
+    build: # раздел для сборки образа контейнера
+      context: .docker/php # путь к директории с файлами для сборки образа контейнера "php"
     ports:
-      - "5432:5432"
-  php:
-    container_name: php
-    build:
-      context: ./docker/php
+      - '19000:9000' # открытие порта 19000 на хосте, который будет перенаправлен на порт 9000 в контейнере
+    volumes: # раздел для примонтированных томов
+      - .:/var/www/symfony_docker # примонтированный каталог для проекта Symfony в контейнере "php"
+    depends_on: # раздел для задания зависимостей между сервисами
+      - database # зависимость сервиса "php" от сервиса "database"
+  nginx: # название сервиса "nginx"
+    container_name: nginx # задание имени контейнера "nginx"
+    image: nginx:stable-alpine # выбор образа контейнера для сервиса "nginx"
     ports:
-      - '9000:9000'
-    volumes:
-      - ./app:/var/www/symfony_docker
-    depends_on:
-      - database
-  nginx:
-    container_name: nginx
-    image: nginx:stable-alpine
-    ports:
-      - '8080:80'
-    volumes:
-      - ./app:/var/www/symfony_docker
-      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
-    depends_on:
-      - php
-      - database
+      - '8080:80' # открытие порта 8080 на хосте, который будет перенаправлен на порт 80 в контейнере
+    volumes: # раздел для примонтированных томов
+      - .:/var/www/symfony_docker # примонтированный каталог для проекта Symfony в контейнере "nginx"
+      - ./.docker/nginx/default.conf:/etc/nginx/conf.d/default.conf # примонтированный файл конфигурации Nginx в контейнере "nginx"
+    depends_on: # раздел для задания зависимостей между сервисами
+      - php # зависимость сервиса "nginx" от сервиса "php"
+      - database # зависимость сервиса "nginx" от сервиса "database"
