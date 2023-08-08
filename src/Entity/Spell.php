@@ -37,6 +37,15 @@ class Spell
     private string $name;
 
     /**
+     * уровень заклинания
+     *
+     * @ORM\Column(name="level", type="integer", length=100, nullable=false)
+     *
+     * @var integer
+     */
+    private int $level;
+
+    /**
      * описание заклинания
      *
      * @ORM\Column(name="description", type="text", length=1000, nullable=false)
@@ -73,6 +82,16 @@ class Spell
     public function getName(): string
     {
         return $this->name;
+    }
+
+    /**
+     * Получить уровень заклинания
+     *
+     * @return integer
+     */
+    public function getLevel(): int
+    {
+        return $this->level;
     }
 
     /**
@@ -116,6 +135,18 @@ class Spell
     public function setName(string $name): Spell
     {
         $this->name = $name;
+        return $this;
+    }
+
+    /**
+     * Вернуть уровень заклинания
+     *
+     * @param int $level
+     * @return Spell
+     */
+    public function setLevel(int $level): Spell
+    {
+        $this->level = $level;
         return $this;
     }
 
